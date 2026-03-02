@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import subprocess
 from abc import ABC, abstractmethod
+from threading import Event, Thread
 
 from playwright.sync_api import sync_playwright
 
