@@ -18,19 +18,26 @@ class TeamsJoiner(CallJoiner):
     destination: Teams meeting URL.
     """
 
+    def __init__(self, headless: bool = True) -> None:
+        self.headless = headless
+
     def join(self, destination: str) -> None:
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=False)
+            browser = p.chromium.launch(headless=self.headless)
             page = browser.new_page()
             page.goto(destination, wait_until="domcontentloaded")
             # Best-effort selectors for Teams web UX.
             for selector in [
                 'button:has-text("Continue on this browser")',
+                'button:has-text("Continue")',
+                'button:has-text("Join on the web")',
+                'button:has-text("Join")',
                 'button:has-text("Join now")',
             ]:
                 locator = page.locator(selector)
                 if locator.count() > 0:
                     locator.first.click()
+                    page.wait_for_timeout(400)
             page.wait_for_timeout(5_000)
             browser.close()
 
